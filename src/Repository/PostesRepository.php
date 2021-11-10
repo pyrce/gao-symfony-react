@@ -1,17 +1,16 @@
 <?php
-
 namespace App\Repository;
 
 use App\Entity\Postes;
-use App\Entity\Attributions;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\Query;
 
 /**
- * @method Postes|null find($id, $lockMode = null, $lockVersion = null)
- * @method Postes|null findOneBy(array $criteria, array $orderBy = null)
- * @method Postes[]    findAll()
- * @method Postes[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Computer|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Computer|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Computer[]    findAll()
+ * @method Computer[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class PostesRepository extends ServiceEntityRepository
 {
@@ -20,48 +19,48 @@ class PostesRepository extends ServiceEntityRepository
         parent::__construct($registry, Postes::class);
     }
 
+    public function findAllQuery()
+    {
+        $query= $this->createQueryBuilder('c')
+            ->select('c')
+            // ->leftJoin("c.assigns", "cassign")
+            // ->where("cassign.date LIKE :val")
+            // ->setParameter("val", '%' . $date . '%')
+            ->getQuery()
+            ->getResult(\Doctrine\ORM\Query::HYDRATE_ARRAY);
+          return $query;
+    }
+
+    public function findAllAndCount()
+    {
+        return $this->createQueryBuilder('c')
+            ->select("count(c.id)")
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
     // /**
-    //  * @return Postes[] Returns an array of Postes objects
+    //  * @return Computer[] Returns an array of Computer objects
     //  */
     /*
     public function findByExampleField($value)
     {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.exampleField = :val')
             ->setParameter('val', $value)
-            ->orderBy('p.id', 'ASC')
+            ->orderBy('c.id', 'ASC')
             ->setMaxResults(10)
             ->getQuery()
             ->getResult()
         ;
     }
     */
-    public function findAllPostes($date)
-    {
-        return $this->createQueryBuilder('p')
-        ->leftJoin('App:Attributions','a','WITH','a.posteId=p.id')
-        ->leftJoin('App:Clients','c','WITH','a.clientId=c.id')
-        ->andWhere("a.jour LIKE :val")
-        ->setParameter("val",'%'.$date.'%')
-        ->addSelect("a")
-        ->addSelect("c")
-        ->getQuery()
-        ->getScalarResult(\Doctrine\ORM\Query::HYDRATE_SCALAR);
-  
-    }
-   /* public function findOneById($id)
-    {
-        return $this->createQueryBuilder('p')
-        ->andWhere('p.id = :val')
-        ->setParameter('val', $id)
-        ->getQuery()
-        ->getScalarResult(\Doctrine\ORM\Query::HYDRATE_SCALAR);
-    }*/
+
     /*
-    public function findOneBySomeField($value): ?Postes
+    public function findOneBySomeField($value): ?Computer
     {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.exampleField = :val')
             ->setParameter('val', $value)
             ->getQuery()
             ->getOneOrNullResult()
@@ -69,3 +68,4 @@ class PostesRepository extends ServiceEntityRepository
     }
     */
 }
+?>

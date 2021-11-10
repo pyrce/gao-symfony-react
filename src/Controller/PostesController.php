@@ -2,15 +2,18 @@
 
 namespace App\Controller;
 
+use DateTime;
 use App\Entity\Attributions;
 use App\Entity\Postes;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\Query;
+use Serializable;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-
+use App\Repository\PostesRepository;
+use Symfony\Component\Serializer\SerializerInterface;
 class PostesController extends AbstractController
 {
     /**
@@ -22,79 +25,43 @@ class PostesController extends AbstractController
         return $this->render('base.html.twig');
     }
        /**
-     * @Route("/api/postes", name="postes")
+     * @Route("/api/postes", name="getPostes",methods={"GET"})
      */
-public function getPostes(Request $request){
+public function getPostes(PostesRepository $post,Request $request,SerializerInterface $serializer): JsonResponse{
 
-     // $post_data = json_decode($request->getContent(),true);
-     $post_data=$request->get("date");
+    $page      = $request->query->get('page') ? (int) $request->query->get('page') : 1;
+    $datenow   = new DateTime();
+    $dateQuery = $datenow->format('Y-m-d');
+    $date      = $request->query->get('date') ? $request->query->get('date') : $dateQuery;
 
-  $postes = $this->getDoctrine()
-        ->getRepository('App:Postes')   -> findAllPostes($post_data);
-  
-  
-$i=0;
-$j=0;
+    // let's see getAssigns from Computer entity
+    $computers = new Postes();
+   // $computers::$date = $date;
 
-          $attr=array();   
-    foreach ($postes as $p) {
+    $computersQuery = $post->findAllQuery();
+    $limit = 3;
 
-     $t= array_filter($attr, function  ($v,$k) use (&$p) {
-if(isset($v["nomPoste"])){
-        if($v["nomPoste"]==$p["p_nomPoste"]){ return $v;}
-}
-        },ARRAY_FILTER_USE_BOTH);  
+    // $computerPaginate = $paginatorInterface->paginate(
+    //     $computersQuery,  // Les données à paginé
+    //     $page,            // Numéro de la page
+    //     $limit            // Nombre d'élément par page
+    // );
 
-     if (sizeof($t)>0) {
-        // if($attr[$i]["nomPoste"]==$p["p_nomPoste"]){
+    $totalComputers = $post->findAllAndCount();
+    $data = [
+       // 'data'      => $computerPaginate,
+        //'totalpage' => ceil($totalComputers / $limit),
+       $computersQuery
+    ];
 
-        // $attr[$i]=array();
 
-        if (sizeof($t[$i]["attributions"])>0) {
+    $json = $serializer->serialize($data, 'json', ['groups' => 'attribution']);
+    $response = new JsonResponse($json, 200, []);
 
-          $j++;
-          
-          $t[$i]["attributions"][$j]["id"] = $p["a_id"];
-          $attr[$i]["attributions"][$j]["posteId"] = $p["p_id"];
-          $t[$i]["attributions"][$j]["nom_client"] = $p["c_nomClient"];
-          $t[$i]["attributions"][$j]["prenom_client"] = $p["c_prenomClient"];
-          $t[$i]["attributions"][$j]["heure"] = $p["a_heure"];
-          $t[$i]["attributions"][$j]["jour"] = $p["a_jour"];
-          $attr[$i]=$t[$i];
-        } else {
-    
-          $attr[$i]["attributions"][$j]["id"] = $p["a_id"];
-          $attr[$i]["attributions"][$j]["posteId"] = $p["p_id"];
-          $attr[$i]["attributions"][$j]["nom_client"] = $p["c_nomClient"];
-          $attr[$i]["attributions"][$j]["prenom_client"] = $p["c_prenomClient"];
-          $attr[$i]["attributions"][$j]["heure"] = $p["a_heure"];
-          $attr[$i]["attributions"][$j]["jour"] = $p["a_jour"];
-        } 
-     
-  // $j++;
-      } else {
-        $i++;
-        $attr[$i]["id"] = $p["p_id"];
-        $attr[$i]["nomPoste"] = $p["p_nomPoste"]; 
-
-        if( isset($p["a_id"]) ){
-          $j=0;
-        $attr[$i]["attributions"][$j]["id"] = $p["a_id"];
-        $attr[$i]["attributions"][$j]["posteId"] = $p["p_id"];
-        $attr[$i]["attributions"][$j]["nom_client"] = $p["c_nomClient"];
-        $attr[$i]["attributions"][$j]["prenom_client"] = $p["c_prenomClient"];
-        $attr[$i]["attributions"][$j]["heure"] = $p["a_heure"];
-        $attr[$i]["attributions"][$j]["jour"] = $p["a_jour"];
-        }
-      }
-
-     
-        }
-
-        return new JsonResponse($attr);
+    return $response;
 }
      /**
-     * @Route("/api/postes/add", name="attr")
+     * @Route("/postes/add", name="attr")
      */
     public function add(Request $request) 
     {

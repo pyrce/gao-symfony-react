@@ -1,41 +1,47 @@
-#index:
-#    path: /
-#    controller: App\Controller\DefaultController::index
+# #index:
+# #    path: /
+# #    controller: App\Controller\DefaultController::index
     
-index:
-    path: /
+# index:
+#     path: /
+#     methods: GET
+#     # the controller value has the format 'controller_class::method_name'
+#     controller: App\Controller\PostesController::liste
+
+# app_login:
+#     path: /login
+#     methods: POST|GETR
+#     controller: App\Controller\SecurityController::login
+
+# attributiondelete:
+#     path: /api/attributions/delete
+#     methods: POST
+#     controller: App\Controller\AttributionsController::delete
+
+getPostes:
+    path: /api/postes
     methods: GET
-    # the controller value has the format 'controller_class::method_name'
-    controller: App\Controller\PostesController::liste
-app_login:
-    path: /login
-    methods: POST|GETR
-    controller: App\Controller\SecurityController::login
+    controller: App\Controller\PostesController::getPostes
 
-attributiondelete:
-    path: /api/attributions/delete
-    methods: POST
-    controller: App\Controller\AttributionsController::delete
+# addattribution:
+#     path: /api/attributions/add
+#     methods: POST
+#     controller: App\Controller\AttributionsController::add
 
-addattribution:
-    path: /api/attributions/add
-    methods: POST
-    controller: App\Controller\AttributionsController::add
+# addPoste:
+#     path: /postes/add
+#     methods: POST
+#     controller: App\Controller\PostesController::add
+# getClient:
+#     path : /clients
+#     methods: GET
+#     controller: App\Controller\ClientsController::index
+# addClient:
+#     path : /api/clients/add
+#     methods: POST
+#     controller: App\Controller\ClientsController::add
 
-addPoste:
-    path: /api/postes/add
-    methods: POST
-    controller: App\Controller\PostesController::add
-getClient:
-    path : /api/clients
-    methods: GET
-    controller: App\Controller\ClientsController::index
-addClient:
-    path : /api/clients/add
-    methods: POST
-    controller: App\Controller\ClientsController::add
-
-app_logout:
-    path: /logout
-    methods: get
-    controller: App\Controller\SecurityController::logout
+# app_logout:
+#     path: /logout
+#     methods: get
+#     controller: App\Controller\SecurityController::logout

@@ -6,7 +6,8 @@ use App\Repository\PostesRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-
+use Symfony\Component\Serializer\Annotation\Groups;
+use DateTime;
 /**
  * @ORM\Entity(repositoryClass=PostesRepository::class)
  */
@@ -15,17 +16,20 @@ class Postes
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer",name="`id`")
+     * @Groups("attribution")
      */
     private $id;
-
+    private $jour;
     /**
-     * @ORM\Column(type="string", length=30)
+     * @ORM\Column(type="string", length=255,name="nomPoste")
+     * @Groups("attribution")
      */
     private $nomPoste;
 
     /**
-     * @ORM\OneToMany(targetEntity=Attributions::class, mappedBy="posteId")
+     * @ORM\OneToMany(targetEntity=Attributions::class, mappedBy="poste")
+     * @Groups("attribution")
      * 
      */
     private $attributions;
@@ -53,29 +57,33 @@ class Postes
     }
 
     /**
-     * @return Collection|Attributions[]
+     * @return Collection|Assign[]
      */
     public function getAttributions(): Collection
     {
-        return $this->attributions;
+        $date = self::$jour;
+        return $this->assigns->filter(function($attr) use($date) {
+            $chosenDate =  new DateTime($date);
+            return $attr->getJour() == $chosenDate;
+        });
     }
 
-    public function addAttribution(Attributions $attribution): self
+    public function addattribution(Attributions $attribution): self
     {
         if (!$this->attributions->contains($attribution)) {
             $this->attributions[] = $attribution;
-            $attribution->setPosteId($this);
+            $attribution->setPoste($this);
         }
 
         return $this;
     }
 
-    public function removeAttribution(Attributions $attribution): self
+    public function removeAssign(Attributions $assign): self
     {
-        if ($this->attributions->removeElement($attribution)) {
+        if ($this->assigns->removeElement($assign)) {
             // set the owning side to null (unless already changed)
-            if ($attribution->getPosteId() === $this) {
-                $attribution->setPosteId(null);
+            if ($assign->getPoste() === $this) {
+                $assign->setPoste(null);
             }
         }
 

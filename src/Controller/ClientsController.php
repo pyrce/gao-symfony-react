@@ -13,8 +13,9 @@ use Symfony\Component\HttpFoundation\Request;
 class ClientsController extends AbstractController
 {
     /**
-     * @Route("/clients", name="clients")
+     * @Route("/clients", name="getClient")
      */
+ 
     public function index(): Response
     {
         $user = $this->getUser();
@@ -24,7 +25,9 @@ class ClientsController extends AbstractController
         ->getRepository('App:Clients')   -> findAll();
         return new JsonResponse($clients);
     }
-
+   /**
+     * @Route("/clients", name="addClient")
+     */
     public function add(Request $request)
     {
         $entityManager = $this->getDoctrine()->getManager();

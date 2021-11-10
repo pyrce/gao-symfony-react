@@ -6,7 +6,7 @@ use App\Repository\ClientsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-
+use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass=ClientsRepository::class)
  */
@@ -16,22 +16,26 @@ class Clients
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     *  @Groups({"attribution", "searchClient", "clientinfo", "attrib"})
      */
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=30)
+     * @ORM\Column(type="string", length=30,name="`nomClient`")
+     *  @Groups({"attribution", "searchClient", "clientinfo", "attrib"})
      */
     private $nomClient;
 
     /**
-     * @ORM\Column(type="string", length=30)
+     * @ORM\Column(type="string", length=30,name="`prenomClient`")
+     *  @Groups({"attribution", "searchClient", "clientinfo", "attrib"})
      */
     private $prenomClient;
 
     /**
 
-   * @ORM\OneToMany(targetEntity=Attributions::class, mappedBy="clientId")
+   * @ORM\OneToMany(targetEntity=Attributions::class, mappedBy="clients")
+   *  @Groups({"attribution", "searchClient", "clientinfo", "attrib"})
      */
     private $attributions;
 
@@ -81,7 +85,7 @@ class Clients
     {
         if (!$this->attributions->contains($attribution)) {
             $this->attributions[] = $attribution;
-            $attribution->setClientId($this);
+            $attribution->setClient($this);
         }
 
         return $this;
@@ -91,8 +95,8 @@ class Clients
     {
         if ($this->attributions->removeElement($attribution)) {
             // set the owning side to null (unless already changed)
-            if ($attribution->getClientId() === $this) {
-                $attribution->setClientId(null);
+            if ($attribution->getClient() === $this) {
+                $attribution->setClient(null);
             }
         }
 

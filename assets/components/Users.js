@@ -5,7 +5,7 @@ import Attributions from './Attributions';
 class postes extends Component {
     constructor() {
         super();
-        this.state = {attributions:[], listepostes: [],show: false, nomPoste:"",loading: true};
+        this.state = {attributions:[], listepostes: [],show: false,jour:new Date().toISOString().substr(0, 10), nomPoste:"",loading: true};
         this.getPostes=this.getPostes.bind(this);
         this.openModal=this.openModal.bind(this);
         this.closeModal=this.closeModal.bind(this);
@@ -17,16 +17,17 @@ class postes extends Component {
     }
     
     getPostes(e) {
-        var date="";
-        if(typeof e !=="undefined"){
-        date= (typeof e.target!=="undefined" ) ? e.target.value : '';
-        }
+
+  axios.get('http://localhost:8000/api/postes', {
+    params: {
+        date: this.state.jour,
+    }
+}).then(postes => {
+
         
-       axios.get(`http://localhost:8000/api/postes`,{date:date}).then(postes => {
-           console.log(postes.data);
-           var t=Object.keys(postes.data).map((key) => postes.data[key]);
-      console.log(t);
-           this.setState({ listepostes: t, loading: false})
+          // var t=Object.keys(postes.data).map((key) => postes.data[key]);
+ console.log(postes.data);
+          // this.setState({ listepostes: postes[0], loading: false})
            
        })
     }
@@ -40,9 +41,10 @@ class postes extends Component {
       closeModal ()  {
         this.setState({ show: false });
       };
+
     ajoutPoste(){
         axios({ 
-            url:"/api/postes/add",
+            url:"http://localhost:8000/postes/add",
             method:"post",
             data:{ 
               nomPoste:this.state.nomPoste,
@@ -81,12 +83,12 @@ class postes extends Component {
         </Modal>
                       { 
                                 this.state.listepostes.map(p =>
-                                    <div className="col-md-3 offset-md-1 row-block card" >
+                                    <div className="col-md-3 offset-md-1 row-block card" key={p.id}>
                                     <div className="card-body">
                                             {p.nomPoste}
                                    
 
-                                        <Attributions posteId={p.id} Attributions={p.attributions} />
+                                        <Attributions posteId={p.id} Attributions={p.attributions}  key={p.id}/>
                                        </div>   
                                       
                                     </div>

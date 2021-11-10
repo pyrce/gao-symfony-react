@@ -4,7 +4,7 @@ namespace App\Entity;
 
 use App\Repository\AttributionsRepository;
 use Doctrine\ORM\Mapping as ORM;
-
+use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass=AttributionsRepository::class)
  */
@@ -14,32 +14,28 @@ class Attributions
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     *  @Groups({"attribution", "clientinfo", "attrib"})
      */
     private $id;
 
     /**
-     * 
-           *     *@ORM\ManyToOne(targetEntity=Clients::class, inversedBy="attributions")
-               *@ORM\JoinTable(name="clients")
-    * @ORM\JoinColumn(name="clientId", referencedColumnName="id")
-
+     * @ORM\ManyToOne(targetEntity=Postes::class, inversedBy="attributions")
      */
-    private $clientId;
-
-    /**
-           *     *@ORM\ManyToOne(targetEntity=Postes::class, inversedBy="attributions")
-               *@ORM\JoinTable(name="Postes")
-    * @ORM\JoinColumn(name="posteId", referencedColumnName="id")
-     */
-    private $posteId;
-
+    private $poste;
     /**
      * @ORM\Column(type="integer")
+     * @Groups({"attribution", "clientinfo", "attrib"})
      */
     private $heure;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Clients::class, inversedBy="attributions")
+     * @Groups({"attribution", "clientinfo", "attrib"})
+     */
     private $clients;
     /**
-     * @ORM\Column(type="string", length=30)
+     * @ORM\Column(type="date", length=30)
+     * @Groups({"attribution", "clientinfo", "attrib"})
      */
     private $jour;
 
@@ -47,34 +43,26 @@ class Attributions
     {
         return $this->id;
     }
-    public function getClients(): ?int
+    public function getClient(): ?int
     {
         return $this->clients;
     }
-    public function getClientId(): ?Clients
+    public function setClient(?Clients $client): self
     {
-        return $this->clientId;
-    }
-
-    public function setClientId(?Clients $clientId): self
-    {
-        $this->clientId = $clientId;
+        $this->client = $client;
 
         return $this;
     }
-
-    public function getPosteId(): ?Postes
+    public function getPoste(): ?Postes
     {
-        return $this->posteId;
+        return $this->poste;
     }
 
-    public function setPosteId(?Postes $posteId): self
+    public function setPoste(?Postes $poste): self
     {
-        $this->posteId = $posteId;
-
+        $this->poste = $poste;
         return $this;
     }
-
     public function getHeure(): ?int
     {
         return $this->heure;

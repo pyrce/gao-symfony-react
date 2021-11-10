@@ -3,12 +3,16 @@
 namespace App\Controller;
 
 use App\Entity\Attributions;
-use Attribute;
+use App\Repository\AttributionsRepository;
+use App\Repository\ClientsRepository;
+use App\Repository\PostesRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Doctrine\ORM\EntityManagerInterface;
 class AttributionsController extends AbstractController
 {
    
@@ -16,11 +20,30 @@ class AttributionsController extends AbstractController
     /**
      * @Route("/attributions", name="attributions")
      */
-    public function index(): Response
+    public function index(Request $request, SerializerInterface $serializer, ClientsRepository $clientRepository, PostesRepository $computerRepository): JsonResponse
     {
-        return $this->render('attributions/index.html.twig', [
-            'controller_name' => 'AttributionsController',
-        ]);
+        $data     = json_decode($request->getContent(), true);
+        $client   = $clientRepository->find($data['clientId']);
+        $computer = $computerRepository->find($data['desktopId']);
+
+        $date = new \DateTime($data['date']);
+        $attribution = new Attributions();
+        $attribution->setHeure($data['hours']);
+        $attribution->setJour($date);
+        $attribution->setClient($client);
+        $attribution->setPoste($computer);
+        $doctrine = $this->getDoctrine()->getManager();
+        $doctrine->persist($attribution);
+        $doctrine->flush();
+
+        $responsJson = [
+            "message" => "Créneau réservé",
+            "content" => $attribution,
+        ];
+
+        $json = $serializer->serialize($responsJson, 'json', ['groups' => 'attrib']);
+        $response = new JsonResponse($json, 200, [], true);
+        return $response;
     }
        /**
      * @Route("/api/attributions/delete",methods={"POST"})
